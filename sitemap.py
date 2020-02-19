@@ -97,6 +97,10 @@ class SiteMap(set):  # ;)
         """One-stop maintenance wrapper function for our dataset"""
         raise NotImplementedError
 
+    def get_sitemap_xml(self) -> str:
+        """Return a tree of the server's sitemap.xml"""
+        raise NotImplementedError
+
     def __call__(self) -> None:
         while True:
             try:
