@@ -6,7 +6,7 @@ The use case is to create a proper, self-synchronising, 3rd party library data s
 
 ## Usage
 
-Run `python3 main.py [-h] [-v VERBOSITY] [-of [OUTFILE]] host` in a shell.
+Run `python3 main.py [-h] [-v VERBOSITY] [-of [OUTFILE]] [-m [METRICS]] host` in a shell.
 
 ## Test
 

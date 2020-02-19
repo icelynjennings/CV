@@ -11,7 +11,7 @@ def parse_args():
         "-v", "--verbosity",
         action="store",
         help="increase output verbosity",
-        default=0,
+        default=1,
         type=int
     )
     parser.add_argument(
@@ -23,8 +23,9 @@ def parse_args():
     parser.add_argument(
         "-m", "--metrics",
         action="store",
-        help="serve metrics at given port (default 8080)",
-        default=8080,
+        nargs='?',
+        help="serve metrics at given port (default 8000)",
+        const=8000,
         type=int
     )
 
