@@ -8,7 +8,7 @@ The use case is to create a proper, self-synchronising, 3rd party library data s
 
 Run `python3 main.py [-h] [-v VERBOSITY] [-of [OUTFILE]] host` in a shell.
 
-## Test 
+## Test
 
 Run `python3 -m unittest test_sitemap.py` in a shell.
 
