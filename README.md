@@ -6,9 +6,11 @@ The use case is to create a proper, self-synchronising, 3rd party library data s
 
 ## Usage
 
-Run `python3 main.py` in a shell.
+Run `usage: main.py [-h] [-v VERBOSITY] [-of [OUTFILE]] host` in a shell.
 
-Run tests by running `python3 -m unittest test_sitemap.py` in a shell.
+## Test 
+
+Run `python3 -m unittest test_sitemap.py` in a shell.
 
 ## Contributing
 
