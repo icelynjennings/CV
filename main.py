@@ -6,6 +6,7 @@ import datetime
 import argparse
 
 from sitemap import SiteMap
+from parse_args import parse_args
 
 
 def run(args) -> SiteMap:
@@ -15,16 +16,6 @@ def run(args) -> SiteMap:
         worker_timeout=6
     )()
     return sitemap
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "host", help='url of the remote host from which to generate a sitemap')
-    parser.add_argument("-v", "--verbosity", action="store",
-                        help="increase output verbosity", default=0, type=int)
-    parser.add_argument("-of", "--outfile", nargs='?', const='', type=str)
-    return parser.parse_args()
 
 
 if __name__ == '__main__':
