@@ -14,7 +14,7 @@ Passing the `--metrics [PORT]` argument runs an http server which outputs metric
 
 ## Test
 
-Run `python3 -m unittest test_sitemap.py` in a shell.
+Run `make test` in a shell.
 
 ## Contributing
 
