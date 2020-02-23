@@ -13,16 +13,7 @@ def run(args) -> SiteMap:
         url=args.host,
         max_workers=30,
         worker_timeout=6
-    )
-
-    start_time = datetime.datetime.now()
-    sitemap()
-    end_time = datetime.datetime.now()
-
-    execution_time = end_time - start_time - \
-        datetime.timedelta(seconds=sitemap.worker_timeout)
-
-    print(f"Execution time: {execution_time}")
+    )()
     return sitemap
 
 
