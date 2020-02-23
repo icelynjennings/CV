@@ -1,21 +1,10 @@
 #!/bin/python3
 
-import sys
 import logging
-import datetime
 import argparse
 
 from sitemap import SiteMap
 from parse_args import parse_args
-
-
-def run(args) -> SiteMap:
-    sitemap = SiteMap(
-        url=args.host,
-        max_workers=30,
-        worker_timeout=6
-    )()
-    return sitemap
 
 
 if __name__ == '__main__':
@@ -26,7 +15,10 @@ if __name__ == '__main__':
         logger = logging.getLogger("sitemap")
         logger.setLevel(args.verbosity * 10)
 
-    sitemap = run(args)
+    sitemap = SiteMap(
+        url=args.host,
+        max_workers=30,
+        worker_timeout=6
+    )()
 
-    if args.outfile:
-        sitemap.dump_to_file(args.outfile)
+    sitemap.dump_to_file(args.outfile) if args.outfile else None

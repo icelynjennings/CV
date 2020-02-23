@@ -23,8 +23,9 @@ def parse_args():
     parser.add_argument(
         "-m", "--metrics",
         action="store",
-        help="if set, servers metrics at given port (default 8080)",
+        help="serve metrics at given port (default 8080)",
         default=8080,
         type=int
     )
+
     return parser.parse_args()
