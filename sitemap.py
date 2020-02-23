@@ -73,7 +73,7 @@ class SiteMap(set):
             '/') or url.startswith(self.domain), urls))
         return [urljoin(self.domain, url) for url in internal_urls]
 
-    def get_sitemap_xml(self, sitemap_xml_location='/sitemap.xml') -> str:
+    def get_sitemap_xml(self, sitemap_xml_location='sitemap.xml') -> str:
         """Returns sitemap.xml on the server"""
         url = f"{self.domain}/{sitemap_xml_location}"  # TODO urljoin
         logger.debug(f"GET {url}")
