@@ -10,7 +10,6 @@ from urllib.parse import urljoin, urlparse
 from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 
-
 logger = logging.getLogger('sitemap')
 
 
@@ -20,6 +19,7 @@ class SiteMap(set):
     def __init__(self, url, max_workers=30, worker_timeout=10):
         super(SiteMap, self).__init__()
         self.failed_requests = set([])
+
         self.domain = self.strip_url(url)
         self.sitemap_xml = self.get_sitemap_xml()
         self.sitemap_xml_soup = self.sitemap_xml_to_soup(self.sitemap_xml)
@@ -28,8 +28,7 @@ class SiteMap(set):
         self.worker_timeout = worker_timeout
 
         self.queue = Queue()
-        for url in self.sitemap_xml_to_list():
-            self.queue.put(url)
+        self.enqueue(self.sitemap_xml_to_list())
         self.queue.put(self.domain)
 
     def __len__(self) -> int:
@@ -43,6 +42,13 @@ class SiteMap(set):
 
     def __contains__(self, item) -> bool:
         return super(SiteMap, self).__contains__(item)
+
+    def enqueue(self, urls) -> None:
+        """Iterate through collections.queue as it returns a lazy iterator
+        New items will not be put on the queue unless iterated, making map() ineffective
+        when adding items to the queue"""
+        for url in urls:
+            self.queue.put(url)
 
     def add(self, url) -> None:
         """Adds input URL to the set.
@@ -70,11 +76,11 @@ class SiteMap(set):
     def get_sitemap_xml(self, sitemap_xml_location='/sitemap.xml') -> str:
         """Returns sitemap.xml on the server"""
         url = f"{self.domain}/{sitemap_xml_location}"  # TODO urljoin
-        logger.info(f"GET {url}")
+        logger.debug(f"GET {url}")
         try:
             r = requests.get(url)
         except requests.exceptions.RequestException as e:
-            logger.debug(f"Exception {e} while retrieving {url}")
+            logger.warning(f"Exception {e} while retrieving {url}")
             self.failed_requests.add(url)
             return ""
         return r.text
@@ -92,18 +98,17 @@ class SiteMap(set):
         if r and r.status_code == 200:
             soup = BeautifulSoup(r.text, 'html.parser')
             all_urls = [a['href'] for a in soup.find_all('a', href=True)]
-            valid_urls = self.filter_internal_urls(all_urls)
-            for url in valid_urls:
-                self.queue.put(url)
+            internal_urls = self.filter_internal_urls(all_urls)
+            self.enqueue(internal_urls)
 
     def request(self, url) -> requests.Response:
         """Request a URL. Record failures in case we want to retry later."""
-        logger.info(f"GET {url}")
+        logger.debug(f"GET {url}")
         try:
             r = requests.get(url, timeout=7)
             return r
         except requests.exceptions.RequestException as e:
-            logger.debug(f"Exception {e} while retrieving {url}")
+            logger.warning(f"Exception {e} while retrieving {url}")
             self.failed_requests.add(url)
             return None
 
@@ -137,12 +142,13 @@ class SiteMap(set):
                     job = self.pool.submit(self.request, url)
                     job.add_done_callback(self.process_urls)
             except Empty:
-                execution_time = datetime.datetime.now() - start_time - \
+                self.last_scrape_execution_time = datetime.datetime.now() - start_time - \
                     datetime.timedelta(seconds=self.worker_timeout)
-                logger.info(f"Worker queue empty for {self.worker_timeout}s.")
                 logger.info(
-                    f"{self} scraped {len(self)} URL(s) in {execution_time}s")
+                    f"Worker queue empty for {self.worker_timeout}s. Ending execution.")
+                logger.debug(
+                    f"{self} scraped {len(self)} URL(s) in {self.last_scrape_execution_time}s")
                 return self  # End execution.
             except Exception as e:
-                logger.debug(e)
+                logger.warning(e)
                 continue
