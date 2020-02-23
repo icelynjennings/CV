@@ -2,12 +2,14 @@
 
 import requests
 import logging
+import datetime
 import lxml
 
 from queue import Queue, Empty
 from urllib.parse import urljoin, urlparse
 from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
+
 
 logger = logging.getLogger('sitemap')
 
@@ -126,6 +128,7 @@ class SiteMap(set):
         raise NotImplementedError
 
     def __call__(self) -> None:
+        start_time = datetime.datetime.now()
         while True:
             try:
                 url = self.queue.get(timeout=self.worker_timeout)
@@ -134,8 +137,11 @@ class SiteMap(set):
                     job = self.pool.submit(self.request, url)
                     job.add_done_callback(self.process_urls)
             except Empty:
+                execution_time = datetime.datetime.now() - start_time - \
+                    datetime.timedelta(seconds=self.worker_timeout)
                 logger.info(f"Worker queue empty for {self.worker_timeout}s.")
-                logger.info(f"{self} scraped {len(self)} URL(s)")
+                logger.info(
+                    f"{self} scraped {len(self)} URL(s) in {execution_time}s")
                 return self  # End execution.
             except Exception as e:
                 logger.debug(e)

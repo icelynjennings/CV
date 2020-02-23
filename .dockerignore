@@ -1,0 +1,6 @@
+.dockerignore
+.gitattributes
+.gitignore
+.vscode
+Jenkinsfile
+dockerfile
