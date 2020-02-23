@@ -24,7 +24,7 @@ if __name__ == '__main__':
     if args.verbosity > 0:
         logging.basicConfig()
         logger = logging.getLogger("sitemap")
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(args.verbosity * 10)
 
     sitemap = run(args)
 
