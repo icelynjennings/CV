@@ -92,14 +92,16 @@ class SiteMap(set):
     def sitemap_xml_to_list(self) -> list:
         return [loc.text.strip() for loc in self.sitemap_xml_soup.find_all("loc")]
 
-    def process_urls(self, response) -> None:
+    def process_urls(self, future) -> None:
         """Callback function appending newfound links to the sitemap."""
-        r = response.result()
+        r = future.result()
         if r and r.status_code == 200:
             soup = BeautifulSoup(r.text, 'html.parser')
             all_urls = [a['href'] for a in soup.find_all('a', href=True)]
             internal_urls = self.filter_internal_urls(all_urls)
             self.enqueue(internal_urls)
+        elif r:
+            self.failed_requests.add(r.url)
 
     def request(self, url) -> requests.Response:
         """Request a URL. Record failures in case we want to retry later."""
@@ -139,8 +141,8 @@ class SiteMap(set):
                 url = self.queue.get(timeout=self.worker_timeout)
                 if url not in self:
                     self.add(url)
-                    job = self.pool.submit(self.request, url)
-                    job.add_done_callback(self.process_urls)
+                    future = self.pool.submit(self.request, url)
+                    future.add_done_callback(self.process_urls)
             except Empty:
                 self.last_scrape_execution_time = datetime.datetime.now() - start_time - \
                     datetime.timedelta(seconds=self.worker_timeout)
