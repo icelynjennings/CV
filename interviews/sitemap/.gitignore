@@ -1,4 +1,5 @@
 __pycache__/
+.coverage
 sitemap.txt
 test_sitemap.txt
 robots.txt

@@ -136,6 +136,7 @@ class SiteMap(set):
 
     def __call__(self) -> None:
         start_time = datetime.datetime.now()
+
         while True:
             try:
                 url = self.queue.get(timeout=self.worker_timeout)
